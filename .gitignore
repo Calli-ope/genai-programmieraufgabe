@@ -1,2 +1,3 @@
-__pycache__/*
-/trained_tokenizers/*
+*/__pycache__/
+/bpe_tokenizer/trained_tokenizers/
+/bpe_tokenizer/__pycache__/
