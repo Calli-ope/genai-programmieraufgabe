@@ -2,40 +2,31 @@
 Konrad Christoph Martens; Finnian
 
 ## 01 - BPE-Tokenizer
-### b)
-**Vokabulargröße: 500**
+### b) + c)
+Für den Vergleich wurden drei Tokenizer (Deutsch, Englisch, Deutsch + Englisch) auf dem verlinkten Datensatz des Auswärtigen Amtes trainiert. Dabei wurden drei Versionen mit unterschiedlicher Vokabulargröße (500, 1000, 1500) trainiert. 
 
-- Deutscher Tokenizer: Benötigt 48,3 Tokens pro Satz für deutschen Text, 53,0 für englischen Text und 48,3 für gemischten Text
-- Englischer Tokenizer: Benötigt 55,7 Tokens pro Satz für deutschen Text, 43,3 für englischen Text und 45,7 für gemischten Text
-- Kombinierter Tokenizer: Benötigt 51,0 Tokens pro Satz für deutschen Text, 46,0 für englischen Text und 45,3 für gemischten Text
+Im Rahmen der Analyse wurden alle Versionen der Tokenizer mit jeweils drei deutschen, englischen und gemischten Sätzen getestet, die jeweils die gleiche Aussage enthalten und in der [Konfigurationsdatei](bpe_tokenizer/config.py) zu finden sind. Für die Charts wurde die durchschnittliche Anzahl der Tokens pro Satz berechnet, die auf der y-Achse gezeigt wird. Für jede Vokabulargröße werden alle drei Tokenizer für alle drei Sprachen verglichen.
+
+**Vokabulargröße: 500**
 
 ![](bpe_tokenizer/charts/tokenizer_avg_comparison_vocab500.png)
 
 **Vokabulargröße: 1000**
 
-- Deutscher Tokenizer: Benötigt 40,3 Tokens pro Satz für deutschen Text, 47,0 für englischen Text und 46,0 für gemischten Text
-- Englischer Tokenizer: Benötigt 53,7 Tokens pro Satz für deutschen Text, 37,7 für englischen Text und 42,7 für gemischten Text
-- Kombinierter Tokenizer: Benötigt 43,3 Tokens pro Satz für deutschen Text, 39,7 für englischen Text und 41,3 für gemischten Text
-
 ![](bpe_tokenizer/charts/tokenizer_avg_comparison_vocab1000.png)
 
 **Vokabulargröße: 1500**
 
-- Deutscher Tokenizer: Benötigt 37,7 Tokens pro Satz für deutschen Text, 43,7 für englischen Text und 42,0 für gemischten Text
-- Englischer Tokenizer: Benötigt 52,0 Tokens pro Satz für deutschen Text, 33,7 für englischen Text und 39,7 für gemischten Text
-- Kombinierter Tokenizer: Benötigt 39,0 Tokens pro Satz für deutschen Text, 36,0 für englischen Text und 38,0 für gemischten Text
-
 ![](bpe_tokenizer/charts/tokenizer_avg_comparison_vocab1500.png)
+
+**Erkenntnisse**
+
+Die durschnittliche Anzahl der Tokens pro Satz hängt von der Vokabulargröße ab. Kleine Werte wie z.B. 500 führen zu mehr und kürzeren Tokens, die weniger Buchstaben umfassen, während höhere Werte wie z.B. 1500 weniger und dafür längere Tokens bedeuten, die ganze Worte oder Wortteile umfassen können. Der Trade-off zwischen einem kleinen Vokabular, was schnelleres Training aber dafür ineffizientreres Encoding bedeutet und einem großen Vokabular, was wiederum langsameres Training aber effizienteres Encoding mit sich bringt, ist auch in den Charts zu erkennen.
+
+Es lässt sich erkennen, das die Tokenizer, die auf Deutsch und Englisch trainiert wurden, für Sätze in den jeweiligen Sprache über alle Vokabulargrößen hinweg besser abschneiden. Mit wachsender Vokabulargröße sinkt außerdem die Anzahl der benötigten Tokens.
 
 Im Kontext des BPE-Algorithmus (Byte-Pair Encoding) sind diese Ergebnisse besonders aufschlussreich. Der BPE-Algorithmus funktioniert, indem er häufig vorkommende Zeichenpaare iterativ zusammenfügt, um ein Subword-Vokabular zu erstellen. Die Diagramme zeigen, dass die Tokenizer, die auf spezifischen Sprachen trainiert wurden, die statistischen Muster dieser Sprachen effektiv lernen konnten.
 Die Effizienzunterschiede zwischen den Tokenizern spiegeln die sprachspezifischen Eigenschaften wider. Der deutsche Tokenizer hat beispielsweise gelernt, deutsche Komposita und morphologische Strukturen effizient zu kodieren, während der englische Tokenizer die häufigen englischen Wortbausteine besser repräsentiert. Die Ergebnisse zeigen auch, dass eine größere Vokabulargröße zu einer kompakteren Darstellung von Informationen führt, da mehr bedeutungsvolle Subword-Einheiten in einem einzelnen Token erfasst werden können.
-
-
-Vocabulary size determines how many unique tokens will be in the tokenizer's vocabulary
-Lower value (e.g., 100-500): Results in more and shorter tokens, higher compression ratio
-Higher value (e.g., 1000+): Results in fewer and longer tokens, lower compression ratio
-Trade-off: Small vocab = faster training but potentially less efficient encoding
-Large vocab = slower training but potentially more efficient encoding
 
 ### c)
 1. Sprachspezifische Effizienz: Jeder Tokenizer zeigt die beste Leistung in seiner eigenen Sprache. Der englische Tokenizer benötigt beispielsweise durchgängig weniger Tokens für englischen Text im Vergleich zu deutschem Text und umgekehrt.
