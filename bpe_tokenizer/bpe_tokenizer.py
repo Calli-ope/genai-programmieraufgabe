@@ -5,20 +5,28 @@ from typing import List
 
 class BPETokenizer:
     def __init__(self, vocab_size: int):
+        """Initialize a BPE tokenizer with the specified vocabulary size."""
         self.vocab_size = vocab_size
         self.vocab = {}
         self.merges = {}
         self.pattern = None
     
     def train(self, texts: List[str]):
-        """Train the BPE tokenizer on the given corpus."""
-        # Initialize with character-level tokens
+        """Train the BPE tokenizer on the given corpus.
+        
+        Implements the Byte-Pair Encoding algorithm:
+        1. Start with character-level tokens
+        2. Iteratively merge the most frequent adjacent pairs
+        3. Stop when target vocabulary size is reached
+        """
+        # Count word frequencies in corpus
         word_counts = collections.Counter()
         for text in texts:
-            text = re.sub(r'\s+', ' ', text)
+            text = re.sub(r'\s+', ' ', text)  # Normalize whitespace
             words = text.split()
             word_counts.update(words)
         
+        # Build initial character vocabulary
         char_vocab = set()
         for word, _ in word_counts.items():
             for char in word:
@@ -27,15 +35,15 @@ class BPETokenizer:
         special_tokens = ['<unk>', '<pad>', '<s>', '</s>']
         char_vocab.update(special_tokens)
 
-        # Initialize the vocabulary with character-level tokens
+        # Initialize the vocabulary with characters
         self.vocab = {char: i for i, char in enumerate(char_vocab)}
 
-        # Create initial word splits
+        # Split all words into characters
         splits = {}
         for word, count in word_counts.items():
             splits[word] = [char for char in word]
         
-        # Merge most frequent pairs until vocabulary size is reached
+        # BPE algorithm: merge pairs until vocab_size is reached
         merges = {}
         vocab_size = len(self.vocab)
 
@@ -58,12 +66,12 @@ class BPETokenizer:
             best_pair = max(pairs, key=pairs.get)
             best_pair_str = ''.join(best_pair)
 
-            # Add to vocab and merges
+            # Add to vocabulary and record merge
             self.vocab[best_pair_str] = vocab_size
             merges[best_pair] = best_pair_str
             vocab_size += 1
 
-            # Apply the merge to all words
+            # Apply merge to all affected words
             for word in word_counts:
                 pieces = splits[word]
                 i = 0
@@ -78,35 +86,27 @@ class BPETokenizer:
 
         self.merges = merges
 
-        # Create a regex pattern for tokenization
-        self.pattern = re.compile(r'\s+|' + '|'.join(re.escape(k) for k in sorted(self.vocab.keys(), key=len, reverse=True)))
+        # Create regex pattern for tokenization (longest tokens first)
+        self.pattern = re.compile('|'.join(re.escape(k) for k in 
+                            sorted(self.vocab.keys(), key=len, reverse=True)))
 
         return self
 
     def tokenize(self, text: str) -> List[str]:
-        """Tokenize the input text using the trained BPE tokenizer."""
+        """Tokenize the input text into subword tokens."""
         if self.pattern is None:
             raise ValueError("Tokenizer has not been trained yet.")
 
-        if self.pattern:
-            tokens = [match.group(0) for match in self.pattern.finditer(text)]
-            return tokens
-        else:
-            return [char for char in text]
+        tokens = [match.group(0) for match in self.pattern.finditer(text)]
+        return tokens
         
     def encode(self, text: str) -> List[int]:
-        """Encode the input text into a list of token IDs."""
+        """Convert text to token IDs using the trained vocabulary."""
         tokens = self.tokenize(text)
-        ids = []
-        for token in tokens:
-            if token in self.vocab:
-                ids.append(self.vocab[token])
-            else:
-                ids.append(self.vocab['<unk>'])
-        return ids
+        return [self.vocab.get(token, self.vocab['<unk>']) for token in tokens]
 
     def save(self, path: str):
-        """"Save the tokenizer to a file."""
+        """Save the tokenizer to a file."""
         data = {
             'vocab_size': self.vocab_size,
             'vocab': self.vocab,
@@ -117,13 +117,14 @@ class BPETokenizer:
 
     @classmethod
     def load(cls, path: str):
-        """"Load the tokenizer to a file."""
+        """Load a tokenizer from a file."""
         with open(path, 'rb') as f:
             data = pickle.load(f)
 
         tokenizer = cls(vocab_size=data['vocab_size'])
         tokenizer.vocab = data['vocab']
         tokenizer.merges = data['merges']
-        tokenizer.pattern = re.compile(r'\s+|' + '|'.join(re.escape(k) for k in sorted(tokenizer.vocab.keys(), key=len, reverse=True)))
+        tokenizer.pattern = re.compile(r'\s+|' + '|'.join(re.escape(k) for k in 
+                                    sorted(tokenizer.vocab.keys(), key=len, reverse=True)))
 
         return tokenizer

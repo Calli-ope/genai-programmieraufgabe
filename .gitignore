@@ -1,2 +1,6 @@
-__pycache__/*
-/trained_tokenizers/*
+*/__pycache__/
+/bpe_tokenizer/trained_tokenizers/
+/bpe_tokenizer/__pycache__/
+.venv/
+/words_calculator/common_words.txt
+/words_calculator/GloVe_models/*
