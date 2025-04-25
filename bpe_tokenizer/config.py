@@ -27,5 +27,5 @@ CHARTS_DIR = "bpe_tokenizer/charts/"
 TOKENIZERS_DIR = "bpe_tokenizer/trained_tokenizers/"
 
 # Paths to training data
-GERMAN_CORPUS_PATH = "bpe_tokenizer/data/de.txt"
-ENGLISH_CORPUS_PATH = "bpe_tokenizer/data/en.txt"
+GERMAN_CORPUS_PATH = "data/de.txt"
+ENGLISH_CORPUS_PATH = "data/en.txt"
