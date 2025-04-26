@@ -1,5 +1,5 @@
 from bpe_tokenizer import BPETokenizer
-from config import TEST_VOCAB_SIZE, TOKENIZERS_DIR, CHARTS_DIR, test_sets
+from config import VOCAB_SIZE, TOKENIZERS_DIR, CHARTS_DIR, test_sets
 import matplotlib.pyplot as plt
 import os
 
@@ -55,7 +55,7 @@ def create_tokenizer_charts(german_metrics, english_metrics, combined_metrics, t
     
     # Set up figure with 3 subplots
     fig, axs = plt.subplots(1, 3, figsize=(18, 6))
-    fig.suptitle(f'Tokenizer Comparison (Vocab Size: {TEST_VOCAB_SIZE})', fontsize=16)
+    fig.suptitle(f'Tokenizer Comparison (Vocab Size: {VOCAB_SIZE})', fontsize=16)
     
     # Create a chart for each tokenizer
     for idx, (tokenizer_name, metrics) in enumerate(tokenizers.items()):
@@ -78,13 +78,13 @@ def create_tokenizer_charts(german_metrics, english_metrics, combined_metrics, t
     
     plt.tight_layout()
     os.makedirs(CHARTS_DIR, exist_ok=True)
-    plt.savefig(f"{CHARTS_DIR}tokenizer_avg_comparison_vocab{TEST_VOCAB_SIZE}.png")
+    plt.savefig(f"{CHARTS_DIR}tokenizer_avg_comparison_vocab{VOCAB_SIZE}.png")
     plt.show()
 
 def main():
-    de_tokenizer = BPETokenizer.load(f"{TOKENIZERS_DIR}german_vocab{TEST_VOCAB_SIZE}_tokenizer.pkl")
-    en_tokenizer = BPETokenizer.load(f"{TOKENIZERS_DIR}english_vocab{TEST_VOCAB_SIZE}_tokenizer.pkl")
-    combined_tokenizer = BPETokenizer.load(f"{TOKENIZERS_DIR}combined_vocab{TEST_VOCAB_SIZE}_tokenizer.pkl")
+    de_tokenizer = BPETokenizer.load(f"{TOKENIZERS_DIR}german_vocab{VOCAB_SIZE}_tokenizer.pkl")
+    en_tokenizer = BPETokenizer.load(f"{TOKENIZERS_DIR}english_vocab{VOCAB_SIZE}_tokenizer.pkl")
+    combined_tokenizer = BPETokenizer.load(f"{TOKENIZERS_DIR}combined_vocab{VOCAB_SIZE}_tokenizer.pkl")
     
     # Test each tokenizer on all test sets
     tokenizers = {

@@ -1,24 +1,23 @@
 # Configuration parameters for BPE tokenizer
 
 # Vocabulary size for tokenizers
-TRAIN_VOCAB_SIZE = 1500 # Used when training tokenizers
-TEST_VOCAB_SIZE = 1500   # Used when loading tokenizers for testing
+VOCAB_SIZE = 1500
 
 test_sets = {
     'German': [
-        "Die Künstliche Intelligenz hat bedeutende Fortschritte in der Sprachverarbeitung gemacht.",
         "Die Programmierung von Sprachmodellen erfordert ein Verständnis von Tokenisierungsalgorithmen.",
-        "BPE-Tokenisierung funktioniert durch iteratives Zusammenführen häufiger Zeichenpaare."
+        "Das Wetter ist heute wirklich schön.",
+        "Kannst du mir bitte den Weg zum nächsten Bahnhof zeigen?"
     ],
     'English': [
-        "Artificial Intelligence has made significant progress in language processing.",
         "Programming natural language models requires understanding of tokenization algorithms.",
-        "BPE tokenization works by merging common character pairs iteratively."
+        "The weather is really nice today.",
+        "Could you please show me the way to the nearest train station?"
     ],
     'Mixed': [
-        "Die Artificial Intelligence hat significant progress in der language processing gemacht.",
         "Programming von Sprachmodellen erfordert ein understanding von tokenization algorithms.",
-        "BPE-Tokenisierung works by merging häufiger character pairs iteratively."
+        "Das weather is really schön today.",
+        "Could you bitte show me den Weg zum nearest Bahnhof?"
     ]
 }
 

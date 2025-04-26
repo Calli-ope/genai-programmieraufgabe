@@ -1,5 +1,5 @@
 from bpe_tokenizer import BPETokenizer
-from config import TRAIN_VOCAB_SIZE, GERMAN_CORPUS_PATH, ENGLISH_CORPUS_PATH, TOKENIZERS_DIR
+from config import VOCAB_SIZE, GERMAN_CORPUS_PATH, ENGLISH_CORPUS_PATH, TOKENIZERS_DIR
 import os
 
 def load_text_data(file_path):
@@ -31,9 +31,9 @@ def train_tokenizer(dataset_paths, vocab_size, name):
     return tokenizer
 
 def main():
-    train_tokenizer([GERMAN_CORPUS_PATH], TRAIN_VOCAB_SIZE, "german")
-    train_tokenizer([ENGLISH_CORPUS_PATH], TRAIN_VOCAB_SIZE, "english")
-    train_tokenizer([GERMAN_CORPUS_PATH, ENGLISH_CORPUS_PATH], TRAIN_VOCAB_SIZE, "combined")
+    train_tokenizer([GERMAN_CORPUS_PATH], VOCAB_SIZE, "german")
+    train_tokenizer([ENGLISH_CORPUS_PATH], VOCAB_SIZE, "english")
+    train_tokenizer([GERMAN_CORPUS_PATH, ENGLISH_CORPUS_PATH], VOCAB_SIZE, "combined")
         
 if __name__ == "__main__":
     main()
