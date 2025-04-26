@@ -8,14 +8,7 @@ def load_text_data(file_path):
         return f.readlines()
 
 def train_tokenizer(dataset_paths, vocab_size, name):
-    """
-    Train tokenizer on the given dataset.
-    
-    Args:
-        dataset_paths: List of text file paths
-        vocab_size: Vocabulary size
-        name: Name for saving the tokenizer
-    """
+    """Train tokenizer on the given dataset."""
     all_texts = []
     for path in dataset_paths:
         texts = load_text_data(path)

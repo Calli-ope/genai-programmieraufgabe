@@ -1,51 +1,64 @@
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
-import spacy
 from sentence_transformers import SentenceTransformer
-import re
+import numpy as np
 
-nltk.download('stopwords', quiet=True)
+nltk.download('punkt')
+nltk.download('punkt_tab')
 
 class TextProcessor:
     """
-    Klasse zur Zerlegung von Texten in Sätze und Erzeugung verschiedener Satzrepräsentationen.
+    Class for splitting texts into sentences and generating different sentence representations.
     """
-    def __init__(self):
-        try:
-            self.nlp = spacy.load('en_core_web_sm')
-        except:
-            print("Languague model is loading...")
-            import os
-            os.system('python -m spacy download en_core_web_sm')
-            self.nlp = spacy.load('en_core_web_sm')
+    def __init__(self, text, language='german', embedding_model='paraphrase-multilingual-MiniLM-L12-v2'):
+        self.text = text
+        self.language = language
+        self.embedding_model_name = embedding_model
+        self.sentences = []
+        self.tfidf_matrix = None
+        self.tfidf_vectorizer = None
+        self.embeddings = None
+
+        if not text or not text.strip():
+            raise ValueError("Input text cannot be empty.")
         
-        self.sentence_transformer = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
+        print(f"TextProcessor initialised for language: {language}, "
+              f"Embedding-Modell: {embedding_model}")
+        
+        self.split_into_sentences()
+        self.generate_tfidf_vectors()
+        self.generate_embeddings()
             
-    def split_into_sentences(self, text):
-        """Text in Sätze zerlegen mit Spacy"""
-        text = re.sub(r'\s+', ' ', text)  # Mehrfache Leerzeichen entfernen
-        
-        # Mit Spacy in Sätze zerlegen
-        doc = self.nlp(text)
-        sentences = [sent.text.strip() for sent in doc.sents]
-        
-        # Leere Sätze entfernen
-        sentences = [s for s in sentences if s.strip()]
-        
-        print(f"Text in {len(sentences)} Sätze zerlegt.")
-        return sentences
+    def split_into_sentences(self):
+        """Splits the input text into sentences."""
+        print(f"Splitting text into sentences...")
+        self.sentences = nltk.sent_tokenize(self.text, language=self.language)
+        if not self.sentences:
+             raise ValueError("Could not split text into sentences.")
+        print(f"Found {len(self.sentences)} sentences.")
     
-    def create_tfidf_vectors(self, sentences):
-        """TF-IDF-Vektoren für Sätze berechnen"""
-        vectorizer = TfidfVectorizer(stop_words='english')
-        tfidf_matrix = vectorizer.fit_transform(sentences)
-        
-        print(f"TF-IDF-Vektoren erstellt: Form {tfidf_matrix.shape}")
-        return tfidf_matrix
+    def generate_tfidf_vectors(self):
+        """Generates TF-IDF vectors for the sentences."""
+        print("\nGenerating TF-IDF vectors...")
+        self.tfidf_vectorizer = TfidfVectorizer()
+        self.tfidf_matrix = self.tfidf_vectorizer.fit_transform(self.sentences)
+        print(f"TF-IDF matrix shape: {self.tfidf_matrix.shape}")
     
-    def create_embeddings(self, sentences):
-        """Satzembeddings mit Sentence-Transformer erstellen"""
-        embeddings = self.sentence_transformer.encode(sentences)
-        
-        print(f"Sentence-Transformer-Embeddings erstellt: Form {embeddings.shape}")
-        return embeddings
+    def generate_embeddings(self):
+        """Generates sentence embeddings using a pre-trained Sentence Transformer model."""
+        print(f"\nGenerating sentence embeddings using model: '{self.embedding_model_name}'...")
+        model = SentenceTransformer(self.embedding_model_name)
+        self.embeddings = model.encode(self.sentences)
+        print(f"Embeddings matrix shape: {self.embeddings.shape}")
+
+    def get_sentences(self) -> list[str]:
+        """Returns the list of sentences."""
+        return self.sentences
+    
+    def get_tfidf_matrix(self) -> np.ndarray:
+        """Returns the TF-IDF matrix."""
+        return self.tfidf_matrix.toarray()
+
+    def get_embeddings(self) -> np.ndarray:
+        """Returns the sentence embeddings."""
+        return self.embeddings
