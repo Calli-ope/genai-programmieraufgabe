@@ -1,7 +1,7 @@
 # Configuration parameters for BPE tokenizer
 
 # Vocabulary size for tokenizers
-VOCAB_SIZE = 1500
+VOCAB_SIZE = 1500 # Adjust for training and testing
 
 test_sets = {
     'German': [

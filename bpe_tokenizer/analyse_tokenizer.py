@@ -78,7 +78,7 @@ def create_tokenizer_charts(german_metrics, english_metrics, combined_metrics, t
     
     plt.tight_layout()
     os.makedirs(CHARTS_DIR, exist_ok=True)
-    plt.savefig(f"{CHARTS_DIR}tokenizer_avg_comparison_vocab{VOCAB_SIZE}.png")
+    plt.savefig(f"{CHARTS_DIR}tokenizer_avg_comparison_vocab{VOCAB_SIZE}.png", dpi=300)
     plt.show()
 
 def main():
