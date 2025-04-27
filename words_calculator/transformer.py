@@ -50,3 +50,4 @@ def wort_rechnung(aufgabe: str):
         print(f"Fehler: {e}")
 
 wort_rechnung("king - man + woman")
+wort_rechnung("paris - france + germany")

@@ -2,5 +2,4 @@
 /bpe_tokenizer/trained_tokenizers/
 /bpe_tokenizer/__pycache__/
 .venv/
-/words_calculator/common_words.txt
-/words_calculator/GloVe_models/*
+/words_calculator/glove.6B.300d.txt

@@ -11,7 +11,7 @@ def lade_glove_modell(pfad):
             modell[wort] = vektor
     return modell
 
-glove = lade_glove_modell("words_calculator/GloVe_models/glove.6B.300d.txt")  # Pfad anpassen
+glove = lade_glove_modell("words_calculator/glove.6B.300d.txt")  # Pfad anpassen
 print("GloVe-Modell erfolgreich geladen!")
 
 def cosine_similarity(a, b):
@@ -56,3 +56,4 @@ def wort_rechnung(aufgabe: str):
         print(f"Fehler: {e}")
 
 wort_rechnung("king - man + woman")
+wort_rechnung("paris - france + germany")

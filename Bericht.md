@@ -48,3 +48,7 @@ Die optimale Wahl hängt vom Anwendungsszenario ab:
 -   Einsprachige Systeme: Sprachspezifische Tokenizer mit großem Vokabular
 -   Mehrsprachige/gemischte Inhalte: Kombinierte Tokenizer für konsistente Ergebnisse über Sprachgrenzen hinweg
 -   Ressourcenbeschränkte Szenarien: Multilingualer Ansatz für beste Balance zwischen Kompaktheit und Flexibilität
+
+## 02 - Wort-Taschenrechner
+
+### a)
