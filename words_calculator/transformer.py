@@ -1,3 +1,4 @@
+import os
 from transformers import BertTokenizer, BertModel
 import torch
 import numpy as np
@@ -63,7 +64,9 @@ def calculate(calculation: str):
 
 
 print("Precomputing embeddings for optimization")
-with open("words_calculator/common_words.txt", "r") as f:
+base_path = os.path.dirname(__file__)
+file_path = os.path.join(base_path, "..", "words_calculator", "common_words.txt")
+with open(file_path, "r") as f:
     word_list = [line.strip() for line in f if line.strip()]
 
 precomputed_embeddings = {}

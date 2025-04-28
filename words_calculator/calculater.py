@@ -39,8 +39,3 @@ while True:
     if input1 == "exit":
         break
     calculate(input1)
-
-# example calculations:
-# king - man + woman
-# paris - france + germany
-#
