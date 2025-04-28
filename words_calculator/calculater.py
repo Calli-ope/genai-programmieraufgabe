@@ -25,7 +25,8 @@ def calculate(calculation: str):
 
         most_similar = model.most_similar(positive=positive, negative=negative)
 
-        print(f"Result: {most_similar[0][0]}\n")
+        for i in range(5):
+            print(f"{i+1}. {most_similar[i][0]} (Score: {most_similar[i][1]:.4f})")
 
     except Exception as e:
         print(e)

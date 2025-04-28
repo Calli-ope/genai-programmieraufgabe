@@ -2,8 +2,10 @@ from transformers import BertTokenizer, BertModel
 import torch
 import numpy as np
 
+print("Loading model")
 tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 model = BertModel.from_pretrained("bert-base-uncased")
+print("Model loaded")
 
 
 def get_embedding(word):
@@ -15,7 +17,7 @@ def get_embedding(word):
         add_special_tokens=True,
     )
     outputs = model(**inputs)
-    return outputs.last_hidden_state.mean(dim=1).detach().numpy().flatten()
+    return outputs.last_hidden_state[:, 0, :].detach().numpy().flatten()
 
 
 def cosine_similarity(a, b):
@@ -45,22 +47,28 @@ def calculate(calculation: str):
         target_vector = sum(get_embedding(word) for word in positive)
         target_vector -= sum(get_embedding(word) for word in negative)
 
-        with open("words_calculator/common_words.txt", "r") as f:
-            word_list = [line.strip() for line in f if line.strip()]
-
         similarities = []
-        for word in word_list:
-            emb = get_embedding(word)
-            sim = cosine_similarity(target_vector, emb)
-            similarities.append((word, sim))
+        for word, emb in precomputed_embeddings.items():
+            if word not in elements:
+                sim = cosine_similarity(target_vector, emb)
+                similarities.append((word, sim))
 
         similarities = sorted(similarities, key=lambda x: -x[1])
 
-        print(f"Result: {similarities[0][0]}\n")
+        for i in range(5):
+            print(f"{i+1}. {similarities[i][0]} (Score: {similarities[i][1]:.4f})")
 
     except Exception as e:
         print(f"Error: {e}")
 
+
+print("Precomputing embeddings for optimization")
+with open("words_calculator/common_words.txt", "r") as f:
+    word_list = [line.strip() for line in f if line.strip()]
+
+precomputed_embeddings = {}
+for word in word_list:
+    precomputed_embeddings[word] = get_embedding(word)
 
 print("'exit' to terminate")
 while True:
