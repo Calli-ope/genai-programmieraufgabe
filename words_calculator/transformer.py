@@ -1,53 +1,71 @@
-from transformers import AutoTokenizer, AutoModel
+from transformers import BertTokenizer, BertModel
 import torch
 import numpy as np
 
-# https://apiacoa.org/publications/teaching/datasets/google-10000-english.txt
+tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+model = BertModel.from_pretrained("bert-base-uncased")
 
-print("Lade Transformer-Modell... (bitte etwas Geduld)")
-tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
-model = AutoModel.from_pretrained("distilbert-base-uncased")
-print("Transformer erfolgreich geladen!")
 
-def get_embedding(wort):
-    inputs = tokenizer(wort, return_tensors="pt")
+def get_embedding(word):
+    inputs = tokenizer(
+        word,
+        padding=True,
+        truncation=True,
+        return_tensors="pt",
+        add_special_tokens=True,
+    )
     outputs = model(**inputs)
     return outputs.last_hidden_state.mean(dim=1).detach().numpy().flatten()
+
 
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-def wort_rechnung(aufgabe: str):
+
+def calculate(calculation: str):
     try:
-        teile = aufgabe.lower().split()
-        if len(teile) < 3 or len(teile) % 2 == 0:
-            raise ValueError("Ungültiger Ausdruck. Beispiel: 'king - man + woman'")
+        elements = calculation.lower().split()
+        if len(elements) < 3 or len(elements) % 2 == 0:
+            raise ValueError(
+                "Invalid calculation! Format example: 'king - man + woman'."
+            )
 
-        vektor = get_embedding(teile[0])
+        positive = [elements[0]]
+        negative = []
 
-        for i in range(1, len(teile), 2):
-            operator, wort = teile[i], teile[i+1]
-            emb = get_embedding(wort)
+        for i in range(1, len(elements), 2):
+            operator, word = elements[i], elements[i + 1]
             if operator == "+":
-                vektor += emb
+                positive.append(word)
             elif operator == "-":
-                vektor -= emb
+                negative.append(word)
             else:
-                raise ValueError(f"Ungültiger Operator: {operator}")
+                raise ValueError(f"Invalid operator: {operator}")
 
-        # Vergleich mit Wortliste (Transformer kennt nicht alle Wörter einzeln)
-        with open("words_calculator/common_words.txt") as f:
-            testwörter = [line.strip() for line in f if line.strip()]
-        ähnlichkeiten = [(w, cosine_similarity(vektor, get_embedding(w))) for w in testwörter]
-        ähnlichste = sorted(ähnlichkeiten, key=lambda x: -x[1])[:5]
+        target_vector = sum(get_embedding(word) for word in positive)
+        target_vector -= sum(get_embedding(word) for word in negative)
 
-        print("\nTop 5 ähnliche Wörter:")
-        for wort, score in ähnlichste:
-            print(f"{wort}: {score:.4f}")
-        print(f"\n→ Bestes Ergebnis: {ähnlichste[0][0]}")
+        with open("words_calculator/common_words.txt", "r") as f:
+            word_list = [line.strip() for line in f if line.strip()]
+
+        similarities = []
+        for word in word_list:
+            emb = get_embedding(word)
+            sim = cosine_similarity(target_vector, emb)
+            similarities.append((word, sim))
+
+        similarities = sorted(similarities, key=lambda x: -x[1])
+
+        print(f"Result: {similarities[0][0]}\n")
 
     except Exception as e:
-        print(f"Fehler: {e}")
+        print(f"Error: {e}")
 
-wort_rechnung("king - man + woman")
-wort_rechnung("paris - france + germany")
+
+print("'exit' to terminate")
+while True:
+    print("Calculation:")
+    input1 = input()
+    if input1 == "exit":
+        break
+    calculate(input1)

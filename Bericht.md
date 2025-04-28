@@ -52,3 +52,33 @@ Die optimale Wahl hängt vom Anwendungsszenario ab:
 ## 02 - Wort-Taschenrechner
 
 ### a)
+
+-   [king - man + woman Google](https://blog.esciencecenter.nl/king-man-woman-king-9a7fd2935a85)
+-   Word2Vec -> gensim
+-   [vortrainiertes Modell "glove-wiki-gigaword-50"](https://radimrehurek.com/gensim/auto_examples/howtos/run_downloader_api.html)
+-   Eingegebene Rechnung überprüfen und String splitten
+-   Elemente an Modell übergeben und Wort zu ähnlichstem Vektor ausgeben
+-   Ursprünglich übergebene Wörter werden automatisch rausgefiltert, da sonst: king - man + woman = king
+    mehr Beispiele:
+-   winter - cold + hot = summer
+-   pizza - italy + japan = sushi
+-   sushi - japan + italy = tapas
+-   paris - france + germany = berlin
+-   paris - france + italy = rome
+-   Teacher - school + court = judge
+-   museum - art + science = institute
+
+### b)
+
+-   Addition: sinnvoll (z.B. king - man + woman ≈ queen)
+
+-   Subtraktion: sinnvoll (z.B. Paris - Frankreich + Deutschland ≈ Berlin)
+-   Skalierung: eingeschränkt sinnvoll (Verstärkung/Abschwächung von Bedeutungen)
+-   Mittelwertbildung: eingeschränkt sinnvoll (Cluster-Bildung)
+
+-   Multiplikation (Vektor × Vektor): nicht sinnvoll (keine klare Bedeutung)
+-   Division: nicht sinnvoll (keine semantische Interpretation)
+-   Komplexe Funktionen (z.B. Sinus, Cosinus): nicht sinnvoll (ändert Struktur ohne Bedeutung)
+
+-   GloVe: gut für lineare Analogie-Rechnungen, feste Vektoren
+-   Transformer-Modelle: gut für kontextabhängige Bedeutungen, schwierig für simples Rechnen
