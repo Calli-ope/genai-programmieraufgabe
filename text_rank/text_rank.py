@@ -76,7 +76,7 @@ def get_relevant_sentences(sentences, scores, num_sentences) -> list:
 
 
 if __name__ == "__main__":
-    file_path = os.path.join("data", "textrank.txt")
+    file_path = os.path.join("text_rank", "data", "textrank.txt")
     num_relevant_sentences = 5
 
     with open(file_path, "r", encoding="utf-8") as f:
