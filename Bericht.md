@@ -6,6 +6,13 @@ Konrad Christoph Martens; Finnian Kühn
 
 ### a)
 
+Vor Beginn der Implementierung des BPE-Tokenizers wurden weitere [Informationen](https://huggingface.co/learn/llm-course/chapter6/5) über den Algorithmus und seine Implementierung gesammelt, die als Grundlage für die Implementierung dienten.
+1. Textsammlung und gewünschte Vokabelgröße übergeben
+2. Text in Wörter und weiter in Charakter aufteilen
+3. Häufigst vorkommenstes Charakterpaar finden 
+4. Paar zum Vokabular hinzufügen bis Vokabelgröße erreicht ist
+
+**Ausführung:**
 1. In der [Konfigurationsdatei](bpe_tokenizer/config.py) gewünschte Vokabulargröße setzen
 2. [train_tokenizer.py](bpe_tokenizer/train_tokenizer.py) ausführen
 3. [analyse_tokenizer.py](bpe_tokenizer/analyse_tokenizer.py) ausführen
@@ -62,7 +69,7 @@ Um den Wortrechner umzusetzen, wurde gensim verwendet. Darüber können sehr ein
 
 An das Modell übergebene Wörter müssen aus Ergebnisses gefiltert werden, da diese sonst häufig die größte Übereinstimmung haben ([Quelle](https://blog.esciencecenter.nl/king-man-woman-king-9a7fd2935a85)). Bei gensim geschieht das bereits automatisch
 
-#### Weitere Beispiele und erwartetes ergebnis:
+#### Weitere Beispiele und erwartetes Ergebnis:
 
 -   winter - cold + hot = summer
 -   pizza - italy + japan = sushi
@@ -124,4 +131,28 @@ Sinnvolle Rechenoperationen im Rahmen eines solchen Rechners sind die Addition u
 
 Eine weitere Operation ist die Multiplikation, jedoch mit Zahlen anstelle von Wörtern. Das könnte zur Steigerung, beziehungsweise Minderung führen (Bsp.: 2 \* stark = stärker)
 
-Andere Operationen, wie Multiplikation, Division, Poten-/Wurzelbildung sind nicht sinnvoll, da sie keine sinnvolle Interpretation/Bedeutung zulassen.
+Andere Operationen, wie Division und Potenz-/Wurzelbildung sind nicht sinnvoll, da sie keine sinnvolle Interpretation/Bedeutung zulassen.
+
+## 03 - TextRank Algorithmus
+
+### a)
+
+- 595 Sätze zerlegt
+- bambus generiert weil andere text sourcen unzuverlässig (verfälschung)
+- in einzelne Sätze zerlegt mit nltk
+- Embedding Vektor einmal mit TF-IDF (ab Folie 11 2. Foliensatz) und einmal mit embedding_model "paraphrase-multilingual-MiniLM-L12-v2" (warum dieses?)
+- vektoren size unterschied sich in breite (wieso?)
+
+### b)
+
+- cosine_similarity mit sklearn.metrics.pairwise
+- visualisierung
+- threshold
+- matplotlib für graph
+- networkx für anordnung
+- networkx auch für textrank auf similarity matrix
+
+### c)
+
+- embedding besser
+- TF-IDF rein syntaktische analyse, während embedding kontextbasiert
