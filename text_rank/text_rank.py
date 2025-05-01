@@ -49,7 +49,7 @@ def visualise_similarity_graph(
 
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, dpi=300)
+        plt.savefig(save_path)
         print(f"Graph saved to {save_path}")
 
     plt.show()
