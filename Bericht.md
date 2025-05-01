@@ -6,55 +6,53 @@ Konrad Christoph Martens; Finnian Kühn
 
 ### a)
 
-Vor Beginn der Implementierung des BPE-Tokenizers wurden weitere [Informationen](https://huggingface.co/learn/llm-course/chapter6/5) über den Algorithmus und seine Implementierung gesammelt, die als Grundlage für die Implementierung dienten.
-1. Textsammlung und gewünschte Vokabelgröße übergeben
-2. Text in Wörter und weiter in Charakter aufteilen
-3. Häufigst vorkommenstes Charakterpaar finden 
-4. Paar zum Vokabular hinzufügen bis Vokabelgröße erreicht ist
+Vor Beginn der Implementierung des BPE-Tokenizers wurden weitere [Informationen](https://huggingface.co/learn/llm-course/chapter6/5) über den Algorithmus und dessen Implementierung gesammelt, die als Grundlage für die Implementierung dienten.
 
-**Ausführung:**
-1. In der [Konfigurationsdatei](bpe_tokenizer/config.py) gewünschte Vokabulargröße setzen
-2. [train_tokenizer.py](bpe_tokenizer/train_tokenizer.py) ausführen
-3. [analyse_tokenizer.py](bpe_tokenizer/analyse_tokenizer.py) ausführen
+1. Das Ausgangsvokabular wird mit einzelnen Zeichen und speziellen Tokens initialisiert. Der Textkorpus wird in Wörter zerlegt, die weiter in Listen bestehend aus ihren einzelnen Zeichen unterteilt werden. Auf diese Weise werden die Ausgangs-Tokens erzeugt.
+2. In einem iterativen Prozess wird über alle Wortvorkommen das häufigste benachbarte Token-Paar ermittelt.
+3. Dieses häufigste Paar wird zu einem neuen Token gemerged, dem Vokabular hinzugefügt und ersetzt das Paar in allen bestehenden Tokensequenzen aller Wörter. Jedes neue Token erhält eine eindeutige Token-ID.
+4. Die Schritte 2 und 3 werden wiederholt, bis die festgelegte Vokabulargröße erreicht ist.
+5. Schließlich wird aus dem endgültigen, nach größe sortierten Vokabular ein Regex-Muster erzeugt, das zur effizienten Tokenisierung neuer Texte verwendet wird, wobei die Token-IDs zum Matching verwendet werden.
+
+Um den Tokenizer ausführen und trainieren zu können, sind folgende Schritte notwendig:
+1. In der [Konfigurationsdatei](bpe_tokenizer/config.py) gewünschte Vokabulargröße setzen.
+2. [train_tokenizer.py](bpe_tokenizer/train_tokenizer.py) ausführen, um den Tokenizer auf den bereitgestellten Textsammlungen zu trainieren.
+3. Für die Tokenisierung der Textsätze [analyse_tokenizer.py](bpe_tokenizer/analyse_tokenizer.py) ausführen.
 
 ### b)
 
-Für den Vergleich wurden drei Tokenizer (Deutsch, Englisch, Deutsch + Englisch) auf dem verlinkten Datensatz des Auswärtigen Amtes trainiert. Dabei wurden drei Versionen mit unterschiedlicher Vokabulargröße (500, 1000, 1500) trainiert.
+Für den Vergleich wurden drei Tokenizer (Deutsch, Englisch, Deutsch + Englisch) auf dem verlinkten Datensatz des Auswärtigen Amtes trainiert. Dabei wurden drei Versionen mit unterschiedlichen Wortschatzgrößen (500, 1000, 1500) trainiert.
 
-Im Rahmen der Analyse wurden alle Versionen der Tokenizer mit jeweils drei deutschen, englischen und gemischten Sätzen getestet, die jeweils die gleiche Aussage enthalten und in der [Konfigurationsdatei](bpe_tokenizer/config.py) zu finden sind. Für die Charts wurde die durchschnittliche Anzahl der Tokens pro Satz berechnet, die auf der y-Achse gezeigt wird. Für jede Vokabulargröße werden alle drei Tokenizer für alle drei Sprachen verglichen.
+Im Rahmen der Analyse wurden alle Versionen des Tokenizers mit jeweils drei deutschen, englischen und gemischten Sätzen getestet, die jeweils die gleiche Aussage enthalten und in der [Konfigurationsdatei](bpe_tokenizer/config.py) definiert sind. Für die Diagramme wurde die durchschnittliche Anzahl der Tokens pro Satz berechnet und auf der y-Achse aufgetragen. Alle drei Tokenizer werden pro Vokabulargröße für alle drei Sprachen verglichen.
 
 **Vokabulargröße: 500**
-
 ![](bpe_tokenizer/charts/tokenizer_avg_comparison_vocab500.png)
 
 **Vokabulargröße: 1000**
-
 ![](bpe_tokenizer/charts/tokenizer_avg_comparison_vocab1000.png)
 
 **Vokabulargröße: 1500**
-
 ![](bpe_tokenizer/charts/tokenizer_avg_comparison_vocab1500.png)
 
 **Ergebnisse**
 
-Auffällig ist, dass die durchschnittliche Anzahl der Tokens pro Satz mit zunehmender Vokabulargröße abnimmt. Außerdem erzielen die auf Deutsch bzw. Englisch trainierten Tokenizer die besten Ergebnisse für Sätze in der jeweiligen Sprache. Die Anzahl der Token für gemischte Sätze liegt für beide Tokenizer zwischen den Ergebnissen für deutsche und englische Sätze. Darüber hinaus kann der kombinierte Tokenizer englischen Sätze besser kodieren als gemischte Sätze. Insgesamt können englische Sätze über alle Vokabulargrößen hinweg mit durchschnittlich am wenigsten Tokens kodiert werden, während deutsche und gemischte Sätze vergleichbar viele Tokens benötigen.
+Generell lässt sich aus den Diagrammen erkennen, dass die durchschnittliche Anzahl der Tokens pro Satz mit zunehmender Vokabelgröße abnimmt. Außerdem erzielen die auf Deutsch bzw. Englisch trainierten Tokenizer bessere Ergebnisse für Sätze in der jeweiligen Sprache. Die Anzahl der Token für gemischte Sätze liegt für beide Tokenizer zwischen den Ergebnissen für deutsche und englische Sätze.
+Der kombinierte Tokenizer erzielt auch die besten Ergebnisse für Sätze in der gemischten Sprache, für die er trainiert wurde. Bei höheren Vokabelgrößen erzielt er teilweise bessere Ergebnisse als die einsprachigen Tokenizer.
+
+Dabei ist die reine Anzahl der Tokens bei allgemeinsprachlichen Sätzen über alle Vokabelgrößen hinweg geringer als bei Sätzen, die Fachtermini o.ä. enthalten. Dieses Phänomen hängt vermutlich stark von dem Text ab, mit dem der Tokenizer trainiert wurde. Hier wurde, wie bereits erwähnt, ein Text des Auswärtigen Amtes verwendet, der vermutlich nur wenige Begriffe aus dem Bereich der Programmierung enthält. Außerdem ist der Umfang des Korpus eher gering, was die Fokussierung auf die Domäne verstärkt.
 
 ### c)
 
-Die Tokenanzahl pro Satz hängt direkt von der Vokabulargröße ab. Kleine Vokabulare (ca. 500 Einheiten) erzeugen mehr kurze Tokens, große Vokabulare (ca. 1500) weniger und längere Tokens, die ganze Wörter oder bedeutungsvolle Wortteile umfassen können. Dabei gilt: Kleine Vokabulare ermöglichen schnelleres Training bei ineffizientem Encoding, große Vokabulare verlangsamen das Training, bieten aber effizienteres Encoding. Die größten Effizienzgewinne liegen zwischen 500 und 1000 Vokabeleinheiten.
+Die Anzahl der Token pro Satz hängt direkt von der Größe des Vokabulars ab. Kleine Vokabulare (z.B. 500) erzeugen mehr und kürzere Tokens, große Vokabulare (z.B. 1500) weniger und längere Tokens, die ganze Wörter oder sinnvolle Wortteile umfassen können. Dabei gilt: Kleine Vokabulare ermöglichen ein schnelleres Training bei ineffizienter Kodierung, große Vokabulare verlangsamen das Training, bieten aber eine effizientere Kodierung. Dies erklärt die abnehmende Anzahl von Tokens pro Satz mit zunehmender Vokabulargröße. Die größten Effizienzgewinne werden bei Vokabelgrößen zwischen 500 und 1000 erzielt.
 
-Die Effizienzunterschiede zwischen den Tokenizern spiegeln die sprachspezifischen Eigenschaften wider. Der deutsche Tokenizer hat beispielsweise gelernt, deutsche Komposita und morphologische Strukturen effizient zu kodieren, während der englische Tokenizer die häufigen englischen Wortbausteine besser repräsentiert. Beide zeigen deutliche Schwächen bei fremdsprachigen Texten.
-Gemischte Sätze liegen in ihrer Tokenanzahl zwischen den Werten der spezialisierten Modelle. Interessanterweise erweist sich der kombinierter, multilingualer Tokenizer sowohl für gemischte Sätze als vorteilhaft, da er beide Sprachmuster abdeckt, als auch für englische Sätze, da diese mit nochmal weniger Token als die gemischten Sätze abgedeckt werden.
+Das Phänomen, dass Tokenizer in der trainierten Sprache am besten funktionieren, lässt sich durch sprachspezifische Eigenschaften erklären, die während des Trainings erlernt werden. So hat der deutsche Tokenizer gelernt, deutsche Komposita und Wortendungen wie "en", "ung" etc. effizient zu kodieren, während der englische Tokenizer englische Wortbestandteile wie "ing", "ly" besser repräsentiert. Beide zeigen deutliche Schwächen bei fremdsprachigen Texten, da sie dort häufig vorkommende Tokens nicht gelernt haben. Gemischte Sätze liegen in der Anzahl der Tokens zwischen den Werten einsprachiger Sätze, da jeweils ein Teil des Satzes effizient kodiert werden kann.
 
-Die Ergebnisse zeigen auch, dass eine größere Vokabulargröße zu einer kompakteren Darstellung von Informationen führt, da mehr bedeutungsvolle Subword-Einheiten in einem einzelnen Token erfasst werden können.
+Der kombinierte mehrsprachige Tokenizer erweist sich bei gemischten Sätzen als vorteilhaft, da er beide Sprachmuster abdeckt. Bei größeren Wortschätzen führt dies sogar dazu, dass die gemischten Sätze mit dem kombinierten Tokenizer weniger Tokens benötigen als die monolingualen Sätze mit dem jeweiligen monolingualen Tokenizer. Dies kann darauf zurückgeführt werden, dass insbesondere der erste deutsche Testsatz viele Wörter enthält, die auch im Englischen so verwendet werden und der kombinierte Tokenizer diese daher sehr effizient kodieren kann.
 
-Der kombinierte deutsch-englische Tokenizer zeigt ausgewogene Leistung in beiden Sprachen. Er erreicht zwar nicht die Spitzeneffizienz der spezialisierten Modelle, benötigt aber weniger Tokens für fremdsprachliche Sätze als die jeweils unpassenden Einzelsprach-Tokenizer.
-
-Die optimale Wahl hängt vom Anwendungsszenario ab:
-
--   Einsprachige Systeme: Sprachspezifische Tokenizer mit großem Vokabular
--   Mehrsprachige/gemischte Inhalte: Kombinierte Tokenizer für konsistente Ergebnisse über Sprachgrenzen hinweg
--   Ressourcenbeschränkte Szenarien: Multilingualer Ansatz für beste Balance zwischen Kompaktheit und Flexibilität
+Die Wahl des Tokenizers hängt stark vom Anwendungsszenario ab:
+- Einsprachige Systeme: sprachspezifische Tokenizer mit großem Wortschatz
+- Mehrsprachige/gemischte Inhalte: Kombinierte Tokenizer für konsistente Ergebnisse über Sprachgrenzen hinweg
+- Ressourcenbeschränkte Szenarien (kleiner Wortschatz, wie in diesem Szenario): Mehrsprachiger Ansatz für beste Balance zwischen Kompaktheit und Flexibilität
 
 ## 02 - Wort-Taschenrechner
 
