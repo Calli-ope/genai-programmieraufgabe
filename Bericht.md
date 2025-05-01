@@ -135,22 +135,35 @@ Andere Operationen, wie Division und Potenz-/Wurzelbildung sind nicht sinnvoll, 
 
 ### a)
 
-- 595 Sätze zerlegt
-- bambus generiert weil andere text sourcen unzuverlässig (verfälschung)
-- in einzelne Sätze zerlegt mit nltk
-- Embedding Vektor einmal mit TF-IDF (ab Folie 11 2. Foliensatz) und einmal mit embedding_model "paraphrase-multilingual-MiniLM-L12-v2" (warum dieses?)
-- vektoren size unterschied sich in breite (wieso?)
+Nach einigen Tests mit der bereitgestellten Textsammlung des Auswärtigen Amtes, bei denen es zu Verfälschungen des Ergebnisses kam, wurde sich dafür entschieden, einen Beispieltext durch ein LLM generieren zu lassen.
+
+Dieser wird mittels der Natural Language Toolkit ([nltk](https://www.nltk.org/))-Bibliothek in einzelne Sätze zerlegt. 
+Danach wird unter Verwendung der [sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html) Bibliothek ein TF-IDF-Vektor erstellt. Dieser zeigt die statistische Häufigkeit von Wörtern im Satz im Verhältnis zu ihrer Häufigkeit im gesamten Textkorpus. Somit spiegelt er die relative Bedeutung von Wörtern wider.
+Gleichzeitig wird auch ein Vektor mit der [SentenceTransformer](https://sbert.net/)-Bibliothek und dem Modell paraphrase-multilingual-MiniLM-L12-v2 erstellt, welches für mehrere Sprachen trainiert wurde. Ein Sentence Embedding versucht, die Bedeutung des gesamten Satzes in einem Vektorraum abzubilden.
+
+Auffällig ist, dass sich die Form der generierten Vektoren unterscheiden:
+- TF-IDF: (595, 1717)
+- Embeddings: (595, 384)
+
+Die erste Dimension gibt die Gesamtzahl der Sätze an und ist daher für beide gleich. Für TF-IDF zeigt die zweite Dimension die Wortschatzgröße von 1717, d.h. die Anzahl der einzelnen Wörter im Text, und für das Embedding-Modell 384, was der festgelegten Größe des Modells entspricht.
 
 ### b)
 
-- cosine_similarity mit sklearn.metrics.pairwise
-- visualisierung
-- threshold
-- matplotlib für graph
-- networkx für anordnung
-- networkx auch für textrank auf similarity matrix
+Ausgehend von den Satzvektoren (entweder TF-IDF oder Embeddings) wird zunächst die Ähnlichkeit zwischen allen Satzpaaren mit Hilfe der Kosinus-Ähnlichkeit berechnet. Diese Ähnlichkeiten bilden die Grundlage für die Erstellung eines Graphen mit Hilfe der Bibliothek [networkx](https://networkx.org/). In diesem Graphen stellen die Sätze die Knoten dar und die berechneten Ähnlichkeiten die Gewichtung der Kanten zwischen ihnen. Für die Visualisierung dieses Graphen verwendet networkx Layout-Algorithmen wie das "Spring Layout", das versucht, stark verbundene Knoten beieinander anzuordnen und die anderen an den Rand zu schieben. Schließlich wird der TextRank-Algorithmus auf diesen Graphen angewendet, um die relevantesten Sätze aufgrund ihrer zentralen Position im Ähnlichkeitsnetzwerk zu identifizieren und zu extrahieren.
 
 ### c)
+**TF-IDF**
+![](text_rank/graphs/tfidf_similarity_graph.png)
+Der TF-IDF-Graph zeigt eine ringförmige Struktur mit vielen einzelnen Knoten am Rand und wenig bis gar nicht ausgeprägten Kanten im Zentrum. Die Sätze liegen weit auseinander, nur wenige kleine Cluster sind erkennbar. Das Netzwerk erscheint also wenig vernetzt, da es keinen dichten Kern mit vielen Sätzen gibt. Dies deutet darauf hin, dass die auf TF-IDF basierenden Ähnlichkeitswerte nur wenige starke Verbindungen liefern. TF-IDF konzentriert sich vor allem auf identische Schlüsselwörter, die hier kaum vorhanden zu sein scheinen.
 
-- embedding besser
-- TF-IDF rein syntaktische analyse, während embedding kontextbasiert
+**Embedding**
+![](text_rank/graphs/embedding_similarity_graph.png)
+Im Gegensatz dazu bildet der Embedding-Graph ein kompaktes, dichtes Cluster im Zentrum, in dem fast alle Knoten mehrfach miteinander verbunden sind. Nur wenige Sätze (z.B. Knoten 44, 46, 50, 506 am Rand) haben weniger Verbindungen. Die Verbindungen sind stark ausgeprägt, was auf eine hohe semantische Übereinstimmung hindeutet. Der Graph deutet darauf hin, dass viele Sätze eine übergeordnete Bedeutung teilen, die mit dem Embedding-Modell erfasst werden kann.
+
+**Relevante Sätze**
+
+Die Kernsätze sind sehr unterschiedlich. TF-IDF identifiziert oft Sätze mit vielen gemeinsamen Schlüsselwörtern, während die Embedding-Sätze eher die Kernaussagen enthalten. Daher spiegeln die Top 5 Sätze unterschiedliche Schwerpunkte wider. Eine direkte Überschneidung tritt nur dann auf, wenn ein Satz sowohl viele Schlüsselwörter enthält als auch inhaltlich zentral ist (z.B. 1. und 3./5. Satz).
+
+**Diskussion**
+
+Im Vergleich zu TF-IDF bieten Sentence Embeddings eine höhere Informationsdichte in Zusammenfassungen, da sie thematisch unterschiedliche Sätze aus semantischen Clustern auswählen und somit mehr neue Informationen pro Satz liefern, während TF-IDF durch die Hervorhebung gemeinsamer Wörter zu Redundanz neigt. Semantisch sind Embeddings ebenfalls überlegen, da sie Wortbedeutungen, Kontext und Beziehungen erfassen, was zu einem tieferen Textverständnis führt, während TF-IDF solche Feinheiten ignoriert. Insgesamt erzeugt der Embedding-basierte Ansatz also reichhaltigere und präzisere Zusammenfassungen, die semantisch zentrale und vielfältige Aspekte abdecken, und ist daher für informationsreiche und vielfältige Zusammenfassungen zu empfehlen, während TF-IDF allein für tiefer gehende Analysen weniger geeignet ist.
